@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NormalMover : NormalDescender
 {
+    // FUNCTIONS
     public void Ascend(Side side)
     {
         Vector3 rayDirection = side == Side.Left ? new Vector3(0, 0, -1) : new Vector3(-1, 0, 0);

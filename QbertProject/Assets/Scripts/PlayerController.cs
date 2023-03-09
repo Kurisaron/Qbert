@@ -5,9 +5,11 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : Singleton<PlayerController>
 {
+    // VARIABLES
     public bool canMove;
     public PlayerLocomotion playerLocomotion;
 
+    // FUNCTIONS
     public override void Awake()
     {
         base.Awake();
