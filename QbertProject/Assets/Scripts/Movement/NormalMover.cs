@@ -2,22 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NormalMover : NormalDescender
+public class NormalMover : Mover
 {
-    // FUNCTIONS
-    public void Ascend(Side side)
+    protected override void Awake()
     {
-        Vector3 rayDirection = side == Side.Left ? new Vector3(0, 0, -1) : new Vector3(-1, 0, 0);
+        gravityDirection = Vector3.down;
+        forwardDirection = Vector3.left;
+        backDirection = Vector3.right;
+        leftDirection = Vector3.back;
+        rightDirection = Vector3.forward;
 
-        if (Physics.Raycast(gameObject.transform.position, rayDirection, out RaycastHit hit))
-        {
-            // TO-DO: Move
-            Debug.Log("Ascend!");
-        }
-        else
-        {
-            Debug.Log("Cannot ascend!");
-        }
     }
-
 }

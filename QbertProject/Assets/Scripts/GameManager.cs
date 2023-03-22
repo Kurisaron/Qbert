@@ -5,13 +5,19 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
     // VARIBALES ================================================
-    private CubeSpawner cubeSpawner;
+    private int currentLevel;
+    private int score;
+
+    private CubeManager cubeManager;
 
     [SerializeField]
     private GameObject playerPrefab;
     private GameObject player;
 
-    private Vector3 teleportDestination = new Vector3(1.0f, 9.0f, 0.0f);
+    [SerializeField]
+    private GameObject warpPlatformPrefab;
+
+    private Vector3 teleportDestination = new Vector3(0.0f, 9.0f, 0.0f);
 
     public bool enemiesFrozen;
     private float freezeSeconds = 5.0f;
@@ -21,9 +27,12 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
 
-        cubeSpawner = gameObject.AddComponent<CubeSpawner>();
-        cubeSpawner.SetupPyramid(1);
+        currentLevel = 1;
+        cubeManager = gameObject.AddComponent<CubeManager>();
+        SetupLevel();
+
         enemiesFrozen = false;
+        ResetScore();
     }
 
     private void Start()
@@ -49,6 +58,44 @@ public class GameManager : Singleton<GameManager>
 
     }
 
+    private void DestroyPlayer()
+    {
+        Destroy(player);
+    }
+
+    // WARP PLATFORMS ==========================================
+
+    public void SpawnWarpPlatform(Side side)
+    {
+        int row = Random.Range(0, 7);
+        Vector3 spawnPos = new Vector3(-1.0f, 6 - row, -1.0f);
+        if (side == Side.Left) spawnPos.x = row;
+        if (side == Side.Right) spawnPos.z = row;
+
+        GameObject warpPlatform = Instantiate(warpPlatformPrefab, spawnPos, Quaternion.identity);
+        warpPlatform.AddComponent<WarpPlatform>();
+    }
+
+    private void DestroyWarpPlatforms()
+    {
+        foreach (WarpPlatform warpPlatform in FindObjectsOfType<WarpPlatform>())
+        {
+            Destroy(warpPlatform.gameObject);
+        }
+    }
+
+    // SCORE ===================================================
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+    }
+
+    public void ResetScore()
+    {
+        score = 0;
+    }
+
     // FREEZE ==================================================
     public void FreezeAllEnemies()
     {
@@ -64,5 +111,45 @@ public class GameManager : Singleton<GameManager>
 
         // TO-DO: Unfreeze all enemies
         enemiesFrozen = false;
+    }
+
+    // LEVELS ===========================================
+    private void SetupLevel()
+    {
+        cubeManager.SetupPyramid(currentLevel);
+        SpawnWarpPlatform(Side.Left);
+        SpawnWarpPlatform(Side.Right);
+    }
+
+    public void CheckCubesComplete()
+    {
+        cubeManager.CheckCubesComplete();
+    }
+
+    public void LevelWin()
+    {
+        StartCoroutine(WinScreenRoutine());
+    }
+
+    private IEnumerator WinScreenRoutine()
+    {
+        cubeManager.DemolishPyramid();
+
+        DestroyPlayer();
+
+        AddScore(750 + (250 * currentLevel));
+        AddScore(FindObjectsOfType<WarpPlatform>().Length * 50);
+
+        DestroyWarpPlatforms();
+
+        // TO-DO: Display win screen
+
+        yield return new WaitForSeconds(2.0f);
+
+        // TO-DO: Clear win screen
+
+        currentLevel += 1;
+        SetupLevel();
+        SpawnPlayer();
     }
 }

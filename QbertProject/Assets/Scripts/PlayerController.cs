@@ -6,43 +6,35 @@ using UnityEngine.InputSystem;
 public class PlayerController : Singleton<PlayerController>
 {
     // VARIABLES
-    public bool canMove;
+    [HideInInspector]
     public PlayerLocomotion playerLocomotion;
 
     // FUNCTIONS
     public override void Awake()
     {
         base.Awake();
-        canMove = true;
+
+
     }
 
-    public void AscendLeft(InputAction.CallbackContext context)
+    public void MoveForward(InputAction.CallbackContext context)
     {
-        if (context.performed && canMove) Ascend(Side.Left);
+        if (context.performed && playerLocomotion != null) playerLocomotion.Move(MovementDirection.Forward);
     }
 
-    public void AscendRight(InputAction.CallbackContext context)
+    public void MoveBackward(InputAction.CallbackContext context)
     {
-        if (context.performed && canMove) Ascend(Side.Right);
+        if (context.performed && playerLocomotion != null) playerLocomotion.Move(MovementDirection.Backward);
     }
 
-    public void DescendLeft(InputAction.CallbackContext context)
+    public void MoveLeft(InputAction.CallbackContext context)
     {
-        if (context.performed && canMove) Descend(Side.Left);
+        if (context.performed && playerLocomotion != null) playerLocomotion.Move(MovementDirection.Left);
     }
 
-    public void DescendRight(InputAction.CallbackContext context)
+    public void MoveRight(InputAction.CallbackContext context)
     {
-        if (context.performed && canMove) Descend(Side.Right);
+        if (context.performed && playerLocomotion != null) playerLocomotion.Move(MovementDirection.Right);
     }
 
-    private void Ascend(Side side)
-    {
-        playerLocomotion.Ascend(side);
-    }
-
-    private void Descend(Side side)
-    {
-        playerLocomotion.Descend(side);
-    }
 }
