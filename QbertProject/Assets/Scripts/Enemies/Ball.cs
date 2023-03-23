@@ -3,28 +3,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlickSam : NormalMover, ICollisionInteractable
+public class Ball : NormalMover, ICollisionInteractable
 {
-    
+    private bool isRed;
+
     protected override void Awake()
     {
         base.Awake();
 
         isPlayer = false;
-        fallOff = SlickSam_FallOff;
-        fallOffEnd = new Action(() => Debug.Log("Slick or Sam has fallen off"));
-        cubeLanding = SlickSam_CubeLanding;
-        warpPlatformLanding = SlickSam_WarpPlatformLanding;
+        fallOff = Ball_FallOff;
+        fallOffEnd = new Action(() => Debug.Log("A ball has fallen off"));
+        cubeLanding = Ball_CubeLanding;
+        warpPlatformLanding = Ball_WarpPlatformLanding;
         canMove = true;
 
         StartCoroutine(RegularMoveRoutine());
+    }
+
+    public void SetBallColor(bool isRed)
+    {
+        this.isRed = isRed;
+
+        transform.Find("Body").gameObject.GetComponent<Renderer>().material.color = isRed ? Color.red : Color.green;
     }
 
     public void OnTriggerEnter(Collider other)
     {
         if (other.transform.parent != null && other.transform.parent.gameObject.name.Contains("Qbert"))
         {
-            KillSelf();
+            if (isRed) RedPlayerCollisionEvent();
+            else GreenPlayerCollisionEvent();
         }
     }
 
@@ -41,24 +50,29 @@ public class SlickSam : NormalMover, ICollisionInteractable
         }
     }
 
-    private void SlickSam_FallOff(MovementDirection movementDirection)
+    private void Ball_FallOff(MovementDirection movementDirection)
     {
         StartCoroutine(FallOffRoutine(movementDirection));
     }
 
-    private void SlickSam_CubeLanding(Cube cube)
+    private void Ball_CubeLanding(Cube cube)
     {
-        cube.SlickSamLanding();
+        
     }
 
-    private void SlickSam_WarpPlatformLanding(WarpPlatform warpPlatform)
+    private void Ball_WarpPlatformLanding(WarpPlatform warpPlatform)
     {
         warpPlatform.ErrorLanding();
     }
 
-    private void KillSelf()
+    private void RedPlayerCollisionEvent()
     {
-        GameManager.Instance.AddScore(300);
+        GameManager.Instance.KillPlayer();
+    }
+
+    private void GreenPlayerCollisionEvent()
+    {
+        GameManager.Instance.FreezeAllEnemies();
         Destroy(gameObject);
     }
 }

@@ -53,7 +53,7 @@ public class Cube : MonoBehaviour
 
     public void SlickSamLanding()
     {
-
+        ResetLandings();
     }
 
     private void SetTopColor()

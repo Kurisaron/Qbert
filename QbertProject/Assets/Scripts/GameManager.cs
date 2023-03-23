@@ -5,6 +5,8 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
     // VARIBALES ================================================
+    private bool gameActive;
+
     private int currentLevel;
     private int score;
 
@@ -18,6 +20,17 @@ public class GameManager : Singleton<GameManager>
     private GameObject warpPlatformPrefab;
 
     private Vector3 teleportDestination = new Vector3(0.0f, 9.0f, 0.0f);
+
+    [SerializeField]
+    private GameObject slickSamPrefab;
+    [SerializeField]
+    private GameObject uggPrefab;
+    [SerializeField]
+    private GameObject wrongwayPrefab;
+    [SerializeField]
+    private GameObject coilyPrefab;
+    [SerializeField]
+    private GameObject ballPrefab;
 
     public bool enemiesFrozen;
     private float freezeSeconds = 5.0f;
@@ -38,6 +51,9 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         SpawnPlayer();
+        gameActive = true;
+
+        StartCoroutine(BallTest());
     }
 
     // PLAYER ====================================================
@@ -133,6 +149,7 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator WinScreenRoutine()
     {
+        gameActive = false;
         cubeManager.DemolishPyramid();
 
         DestroyPlayer();
@@ -151,5 +168,51 @@ public class GameManager : Singleton<GameManager>
         currentLevel += 1;
         SetupLevel();
         SpawnPlayer();
+        gameActive = true;
+    }
+
+    // ENEMIES
+    private void SlickSamSpawn()
+    {
+        Side spawnSide = (Side)Random.Range(0, 2);
+        Vector3 spawnPos = new Vector3(0, 10, 0);
+        spawnPos += spawnSide == Side.Left ? Vector3.right : Vector3.forward;
+
+        GameObject slickSam = Instantiate(slickSamPrefab, spawnPos, Quaternion.identity);
+        slickSam.AddComponent<SlickSam>();
+    }
+
+    private void UggSpawn()
+    {
+
+    }
+
+    private void WrongwaySpawn()
+    {
+
+    }
+
+    private void CoilySpawn()
+    {
+
+    }
+
+    private IEnumerator BallTest()
+    {
+        BallSpawn(true);
+
+        yield return new WaitForSeconds(3.0f);
+
+        BallSpawn(false);
+    }
+
+    private void BallSpawn(bool isRed)
+    {
+        Side spawnSide = (Side)Random.Range(0, 2);
+        Vector3 spawnPos = new Vector3(0, 10, 0);
+        spawnPos += spawnSide == Side.Left ? Vector3.right : Vector3.forward;
+
+        GameObject ball = Instantiate(ballPrefab, spawnPos, Quaternion.identity);
+        ball.AddComponent<Ball>().SetBallColor(isRed);
     }
 }

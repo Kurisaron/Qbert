@@ -161,11 +161,8 @@ public abstract class Mover : MonoBehaviour
         }
 
         transform.position = endPosition;
-
-        while (transform.position.y > -5.0f)
-        {
-            yield return null;
-        }
+        
+        // TO-DO: fall destroy test
 
         fallOffEnd();
 
