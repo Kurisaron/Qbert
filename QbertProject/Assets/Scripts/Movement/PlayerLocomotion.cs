@@ -22,7 +22,7 @@ public class PlayerLocomotion : NormalMover, ICollisionInteractable
         
     }
 
-    private void Player_FallOff()
+    private void Player_FallOff(MovementDirection movementDirection)
     {
         Debug.Log("You cannot go that way! You don't want to fall off");
     }

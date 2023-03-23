@@ -20,7 +20,8 @@ public abstract class Mover : MonoBehaviour
     protected Vector3 gravityDirection;
     protected Vector3 forwardDirection, leftDirection, rightDirection, backDirection;
 
-    protected Action fallOff;
+    protected Action<MovementDirection> fallOff;
+    protected Action fallOffEnd;
     protected Action<Cube> cubeLanding;
     protected Action<WarpPlatform> warpPlatformLanding;
 
@@ -33,6 +34,8 @@ public abstract class Mover : MonoBehaviour
             Debug.Log("Cannot move");
             return;
         }
+
+        transform.LookAt(transform.position + GetMovementDirectionVector(moveDirection), -gravityDirection);
 
         if (!Ascend(moveDirection))
         {
@@ -61,7 +64,7 @@ public abstract class Mover : MonoBehaviour
         }
         else
         {
-            fallOff();
+            fallOff(movementDirection);
         }
     }
 
@@ -131,5 +134,41 @@ public abstract class Mover : MonoBehaviour
         }
 
         canMove = true;
+    }
+
+    protected IEnumerator FallOffRoutine(MovementDirection movementDirection)
+    {
+        canMove = false;
+        float time = 0.0f;
+
+        Vector3 startPostion = transform.position;
+        Vector3 endPosition = startPostion + GetMovementDirectionVector(movementDirection);
+        Vector3 midArcPosition = startPostion + ((endPosition - startPostion) / 2);
+        midArcPosition += -gravityDirection * 0.5f;
+
+        while (time < 0.5f)
+        {
+            transform.position = Vector3.Lerp(startPostion, midArcPosition, time * 2.0f);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        while (time < 1.0f)
+        {
+            transform.position = Vector3.Lerp(midArcPosition, endPosition, (time - 0.5f) * 2.0f);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = endPosition;
+
+        while (transform.position.y > -5.0f)
+        {
+            yield return null;
+        }
+
+        fallOffEnd();
+
+        Destroy(gameObject);
     }
 }
